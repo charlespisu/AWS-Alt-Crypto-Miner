@@ -1,0 +1,2 @@
+# MoneroMiner
+AWS Monero Miner
