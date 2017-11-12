@@ -33,11 +33,15 @@
     }
   },
 
-
+  "Conditions" : {
+    "LinuxOS" : {"Fn::Equals" : [{"Ref" : "OSType"}, "Linux"]},
+    "UbuntuOS": {"Fn::Equals" : [{"Ref" : "OSType"}, "Ubuntu"]}
+  },
 
   "Resources" : {
     "EC2Instance" : {
       "Type" : "AWS::EC2::Instance",
+      "Condition" : "LinuxOS",
       "Properties" : {
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
@@ -56,7 +60,31 @@
                           "sudo ./minerd -a cryptonight -o stratum+tcp://monerohash.com:3333 -p x -u ",
                           { "Ref" : "Wallet" }, " &"
                       ]]}}
-      }
+                }
+
+      },
+      "UbuntuMiner" : {
+        "Type" : "AWS::EC2::Instance",
+        "Condition" : "UbuntuOS",
+        "Properties" : {
+          "InstanceType" : { "Ref" : "InstanceType" },
+          "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+          "KeyName" : { "Ref" : "KeyName" },
+          "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                            { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+          "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
+                            "#!/bin/bash -xe\n",
+                            "yum -y install git curl-devel libcurl glib-devel libtool screen\n",
+                            "git clone https://github.com/hyc/cpuminer-multi",
+                            "\n",
+                            "cd cpuminer-multi\n",
+                            "./autogen.sh\n",
+                            "CFLAGS=\"-march=native\" ./configure\n",
+                            "make\n",
+                            "sudo ./minerd -a cryptonight -o stratum+tcp://monerohash.com:3333 -p x -u ",
+                            { "Ref" : "Wallet" }, " &"
+                        ]]}}
+        }
     },
 
     "InstanceSecurityGroup" : {
@@ -76,19 +104,23 @@
   "Outputs" : {
     "InstanceId" : {
       "Description" : "InstanceId of the newly created EC2 instance",
-      "Value" : { "Ref" : "EC2Instance" }
+      "Value" : { "Ref" : "EC2Instance" },
+      "Condition" : "LinuxOS"
     },
     "AZ" : {
       "Description" : "Availability Zone of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] },
+      "Condition" : "LinuxOS"
     },
     "PublicDNS" : {
       "Description" : "Public DNSName of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] },
+      "Condition" : "LinuxOS"
     },
     "PublicIP" : {
       "Description" : "Public IP address of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] },
+      "Condition" : "LinuxOS"
     }
   },
 
