@@ -22,6 +22,73 @@
      "Description" : "Your Minero wallet address",
      "Type" : "String",
      "Default" : "49hJ5k9h7g86yGTHYA8X5pgZKU7xS5unwbQkF8oMoCPwFJbkcwaQU9MFtp23ZCAPU3JczVvHQRebtVkumgM9JTjtBTjb2Xm"
+   },
+
+    "OSType" : {
+      "Description" : "Pick an OS to run the miner on",
+      "Type" : "String",
+      "Default" : "Linux",
+      "AllowedValues" : [ "Linux" , "Ubuntu"],
+      "ConstraintDescription": "Only works on these two OS's for now"
+    }
+  },
+
+
+
+  "Resources" : {
+    "EC2Instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
+                          "#!/bin/bash -xe\n",
+                          "yum -y install git curl-devel libcurl glib-devel libtool screen\n",
+                          "git clone https://github.com/hyc/cpuminer-multi",
+                          "\n",
+                          "cd cpuminer-multi\n",
+                          "./autogen.sh\n",
+                          "CFLAGS=\"-march=native\" ./configure\n",
+                          "make\n",
+                          "sudo ./minerd -a cryptonight -o stratum+tcp://monerohash.com:3333 -p x -u ",
+                          { "Ref" : "Wallet" }, " &"
+                      ]]}}
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH access via port 22",
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "-1",
+          "FromPort": "-1",
+          "ToPort": "-1",
+          "CidrIp" : "0.0.0.0/0"
+        } ]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "InstanceId" : {
+      "Description" : "InstanceId of the newly created EC2 instance",
+      "Value" : { "Ref" : "EC2Instance" }
+    },
+    "AZ" : {
+      "Description" : "Availability Zone of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
+    },
+    "PublicDNS" : {
+      "Description" : "Public DNSName of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
+    },
+    "PublicIP" : {
+      "Description" : "Public IP address of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
     }
   },
 
@@ -157,62 +224,5 @@
       "cn-northwest-1"   : {"PV64" : "ami-80707be2", "HVM64" : "ami-cb858fa9", "HVMG2" : "NOT_SUPPORTED"}
     }
 
-  },
-
-  "Resources" : {
-    "EC2Instance" : {
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "InstanceType" : { "Ref" : "InstanceType" },
-        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
-        "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
-                          "#!/bin/bash -xe\n",
-                          "yum -y install git curl-devel libcurl glib-devel libtool screen\n",
-                          "git clone https://github.com/hyc/cpuminer-multi",
-                          "\n",
-                          "cd cpuminer-multi\n",
-                          "./autogen.sh\n",
-                          "CFLAGS=\"-march=native\" ./configure\n",
-                          "make\n",
-                          "sudo ./minerd -a cryptonight -o stratum+tcp://monerohash.com:3333 -p x -u ",
-                          { "Ref" : "Wallet" }, " &"
-                      ]]}}
-      }
-    },
-
-    "InstanceSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "Enable SSH access via port 22",
-        "SecurityGroupIngress" : [ {
-          "IpProtocol" : "-1",
-          "FromPort": "-1",
-          "ToPort": "-1",
-          "CidrIp" : "0.0.0.0/0"
-        } ]
-      }
-    }
-  },
-
-  "Outputs" : {
-    "InstanceId" : {
-      "Description" : "InstanceId of the newly created EC2 instance",
-      "Value" : { "Ref" : "EC2Instance" }
-    },
-    "AZ" : {
-      "Description" : "Availability Zone of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
-    },
-    "PublicDNS" : {
-      "Description" : "Public DNSName of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
-    },
-    "PublicIP" : {
-      "Description" : "Public IP address of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
-    }
   }
 }
