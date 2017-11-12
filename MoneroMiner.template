@@ -175,6 +175,11 @@
           "FromPort" : "-1",
           "ToPort" : "-1",
         } ]
+        "SecurityGroupEgress" : [ {
+          "IpProtocol" : "-1",
+          "FromPort" : "-1",
+          "ToPort" : "-1",
+        } ]
       }
     }
   },
