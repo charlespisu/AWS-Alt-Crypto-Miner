@@ -171,9 +171,9 @@
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [ {
-          "IpProtocol" : "-1",
-          "FromPort" : "-1",
-          "ToPort" : "-1",
+          "IpProtocol" : "tcp",
+          "FromPort": "0",
+          "ToPort": "65535"
         } ]
       }
     }
