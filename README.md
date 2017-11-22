@@ -1,6 +1,8 @@
 # AWS Cryptocurrency Miner 
 The AWS Cryptocurrency miner lets you quickly and effortlessly test mining different cryptocurrencies with a variety of EC2 instance types to help you find a profitable combination.  The miner used is an AWS optimized version of xmr-stak (https://github.com/fireice-uk/xmr-stak)
 
+Currently supports mining Monero and Aeon
+
 # Usage
 
 Note: Currently only works in N. Virigina region (US-East-1)
