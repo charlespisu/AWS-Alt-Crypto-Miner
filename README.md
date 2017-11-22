@@ -3,7 +3,7 @@ The AWS Cryptocurrency miner lets you quickly and effortlessly test mining diffe
 
 # Usage
 
-Note: Currently only works in N. Virigina reion (US-East-1)
+Note: Currently only works in N. Virigina region (US-East-1)
 
 1) Download this git repo locally to your machine
 2) Open CloudFormation and click Create Stack
@@ -15,5 +15,8 @@ Note: Currently only works in N. Virigina reion (US-East-1)
 8) When complete, remember to delete stack 
   
  
-# Please note: This should only be used to test performance of EC2 instance types for various Cryptocurrencies.  The wallet address being mined by this tool is generic and will not generate you profits unless you SSH into the instance and adjust the config.txt file under /xmr-stak/bin with your wallet address.
+# Please note: 
+This should only be used to test performance of EC2 instance types for various Cryptocurrencies.  The wallet address being mined by this tool is generic and will not generate you profits unless you SSH into the instance and adjust the config.txt file under /xmr-stak/bin with your wallet address.
 
+Example of ouput:
+![Alt text](https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/4c09cdeee86f94df2e9dd86b927e64aded6184f5/xmr-stak-cpu-hashrate.png "Sample Hashrate report from browswer")
